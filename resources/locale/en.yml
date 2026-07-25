@@ -1,0 +1,21 @@
+gradba-blueprint:
+  admin:
+    settings:
+      primaryColor: Primary colour
+      primaryColor-Help: >-
+        The accent. Used for the primary button and little else — the theme is built
+        around one accent per view, so spending it elsewhere weakens it.
+      accentColor: Secondary colour
+      accentColor-Help: >-
+        Used for links, focus rings and hover states, and as the hue Flarum derives
+        its muted text and control surfaces from. Keep it desaturated.
+      bodyBg: Page background
+      bodyBg-Help: >-
+        The colour behind everything. A slightly warm off-white reads softer than
+        pure white and lets the cards separate from the page.
+      showGrid: Show the blueprint grid
+      showGrid-Help: >-
+        Draws a faint two-line grid across the page background, in the same colour as
+        the borders. It is what the theme is named for.
+      gridSize: Grid pitch
+      gridSize-Help: Spacing of the grid lines, in pixels. 56 is the default.

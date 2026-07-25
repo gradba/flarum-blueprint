@@ -1,0 +1,30 @@
+{
+    "name": "gradba/flarum-blueprint",
+    "description": "A clean, recolourable Flarum theme built around a faint blueprint grid — soft cards, a physical primary button and one accent colour.",
+    "keywords": ["flarum", "theme", "blueprint", "design"],
+    "type": "flarum-extension",
+    "license": "MIT",
+    "authors": [
+        { "name": "Gradba.mk", "role": "Maintainer" }
+    ],
+    "require": {
+        "flarum/core": "^1.8"
+    },
+    "extra": {
+        "flarum-extension": {
+            "title": "Blueprint",
+            "category": "theme",
+            "icon": {
+                "name": "fas fa-drafting-compass",
+                "backgroundColor": "#FBB03B",
+                "color": "#1d1a12"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "support": {
+        "source": "https://github.com/gradba/flarum-blueprint",
+        "issues": "https://github.com/gradba/flarum-blueprint/issues"
+    }
+}

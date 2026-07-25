@@ -1,0 +1,467 @@
+// =============================================================================
+// Blueprint — forum styles
+// =============================================================================
+//
+// Loaded after core and after the admin's Custom Styles box, so plain rules here
+// win at equal specificity. Colour tokens live in variables.less (which replaces
+// core's); this file is layout, surface and motion.
+//
+// Three rules the whole theme follows, borrowed from the brand it was built for:
+//
+//   1. ONE accent per view. The primary colour appears on the primary action and
+//      almost nowhere else. Everything competing with it is a neutral.
+//   2. The accent colour is for interaction, never for large surfaces. No filled
+//      header, no filled hero.
+//   3. One transition duration — .12s ease — everywhere.
+// -----------------------------------------------------------------------------
+
+// Local aliases. `@primary-color` is injected by core's .define-colors() mixin,
+// so it is only readable here, not assignable.
+@bp-radius-lg:  20px;   // hero, big cards
+@bp-radius:     14px;   // list items, post bodies
+@bp-radius-sm:  12px;   // buttons, inputs (== @border-radius)
+@bp-shadow:     0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 32px -12px rgba(0, 0, 0, 0.14);
+@bp-shadow-sm:  0 1px 2px rgba(0, 0, 0, 0.04), 0 6px 16px -10px rgba(0, 0, 0, 0.12);
+@bp-ease:       0.12s ease;
+
+// -----------------------------------------------------------------------------
+// Foundations
+// -----------------------------------------------------------------------------
+
+body {
+  // Core hard-codes this in common/scaffolding.less with no variable to override,
+  // so the whole rule is restated. The stack is Cyrillic-safe without a webfont —
+  // Noto Sans covers it — which also keeps the forum working with no network.
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif;
+  // Core sets 13px. 14px is closer to a normal reading size without disturbing the
+  // em-based scale the components are built on.
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+// The blueprint grid: two hairline rules at the pitch set in the admin panel.
+// Deliberately drawn in the same token as every border on the page, so it reads as
+// the faintest member of one family rather than as decoration.
+.blueprint-grid() when (@blueprint-show-grid = true) {
+  body {
+    background-image:
+      linear-gradient(@blueprint-line 1px, transparent 1px),
+      linear-gradient(90deg, @blueprint-line 1px, transparent 1px);
+    background-size: @blueprint-grid-size @blueprint-grid-size;
+    // Offset so the lines land on whole pixels instead of straddling two.
+    background-position: -1px -1px;
+  }
+}
+.blueprint-grid();
+
+// The grid has to show through, so the app shell must not paint over it.
+.App,
+.App-content,
+.IndexPage,
+.DiscussionPage,
+.UserPage {
+  background: transparent;
+}
+
+:root {
+  // Core defaults the selected side-nav item to the primary colour
+  // (`var(--sidenav-color-active, var(--primary-color))`). That spends the accent on
+  // navigation, so the primary button no longer owns it. The secondary colour is
+  // exactly what this theme reserves for "you are here" signals.
+  --sidenav-color-active: @secondary-color;
+}
+
+a {
+  transition: color @bp-ease;
+}
+
+// One focus treatment, applied once, never removed.
+:focus-visible {
+  outline: 3px solid @secondary-color;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+// -----------------------------------------------------------------------------
+// Header
+// -----------------------------------------------------------------------------
+// This theme is designed for Flarum's "coloured header" setting OFF: a full-bleed
+// accent bar out-shouts the primary button on every page, and the rule is one accent
+// per view. It still renders correctly with the setting on, because the background
+// follows `--header-bg` rather than being hard-coded to white — otherwise you get
+// core's pale on-accent text sitting on a white bar, which is unreadable.
+.App-header {
+  background: fade(@header-bg, 92%);
+  backdrop-filter: saturate(160%) blur(12px);
+  border-bottom: 1px solid @blueprint-line;
+  box-shadow: none;
+}
+
+.Header-title {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: @heading-color;
+}
+
+// Whatever logo the forum has configured. Sized by height so any aspect ratio works,
+// with an explicit `width: auto` — an SVG carrying only a viewBox has a ratio but no
+// intrinsic size, and some browsers resolve that to zero width.
+.Header-logo {
+  height: 34px;
+  max-height: 34px;
+  width: auto;
+  display: block;
+}
+
+.Header-controls {
+  > li > a,
+  > li > button {
+    border-radius: 999px;
+    transition: background @bp-ease, color @bp-ease;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Hero
+// -----------------------------------------------------------------------------
+// A card floating on the grid rather than a full-width colour band.
+
+.Hero {
+  background: transparent;
+  color: @text-color;
+  margin-top: 0;
+
+  .container {
+    max-width: 1100px;
+    margin: 24px auto 0;
+    padding: 36px 32px 32px;
+    background: @blueprint-card;
+    border: 1px solid @blueprint-line;
+    border-radius: @bp-radius-lg;
+    box-shadow: @bp-shadow;
+  }
+
+  h1 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: @heading-color;
+  }
+}
+
+.Hero-subtitle {
+  color: @muted-color;
+  max-width: 62ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.Hero-close {
+  opacity: 0.4;
+  transition: opacity @bp-ease;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+@media @phone {
+  .Hero .container {
+    margin: 12px 12px 0;
+    padding: 26px 20px 22px;
+    border-radius: @bp-radius;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Discussion list
+// -----------------------------------------------------------------------------
+// Each row is a card. The hover state is a lift, not a colour wash, so the accent
+// stays reserved for things you can actually press.
+
+.DiscussionListItem {
+  background: @blueprint-card;
+  border: 1px solid @blueprint-line;
+  border-radius: @bp-radius;
+  margin-bottom: 10px;
+  box-shadow: @bp-shadow-sm;
+  transition: transform @bp-ease, box-shadow @bp-ease, border-color @bp-ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    border-color: fade(@secondary-color, 35%);
+    box-shadow: @bp-shadow;
+  }
+
+  &:last-child {
+    border-bottom: 1px solid @blueprint-line;
+  }
+}
+
+// Desktop only. On phone, core pulls the avatar (margin-left: -45px) and the reply
+// count (margin-right: -35px) back into gutters that this element's own padding
+// creates — so replacing that padding at every width drags both outside the card.
+@media @tablet-up {
+  .DiscussionListItem-content {
+    padding: 16px 18px;
+  }
+}
+
+@media @phone {
+  // Inset the cards from the viewport edge; core's list is edge-to-edge here.
+  .DiscussionList-discussions {
+    padding: 0 12px;
+  }
+
+  // Vertical only — the horizontal gutters must survive.
+  .DiscussionListItem-content {
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+}
+
+.DiscussionListItem-title {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+}
+
+.DiscussionListItem-info {
+  color: @muted-color;
+}
+
+// The reply counter reads as a quiet chip, not a second call to action.
+.DiscussionListItem-count {
+  border-radius: 999px;
+  font-weight: 600;
+  background: @control-bg;
+  // @control-color is @muted-color, which is tuned for body text on the page
+  // background — on the pale control fill it washes out. Darken for the chip only.
+  color: darken(@muted-color, 12%);
+  transition: background @bp-ease, color @bp-ease;
+
+  .DiscussionListItem.unread & {
+    background: fade(@secondary-color, 12%);
+    color: @secondary-color;
+  }
+}
+
+.DiscussionList-discussions > li {
+  border-bottom: 0;
+}
+
+// -----------------------------------------------------------------------------
+// Posts
+// -----------------------------------------------------------------------------
+
+.PostStream .PostStream-item {
+  margin-bottom: 10px;
+}
+
+.CommentPost {
+  background: @blueprint-card;
+  border: 1px solid @blueprint-line;
+  border-radius: @bp-radius;
+  box-shadow: @bp-shadow-sm;
+  padding: 18px 20px;
+}
+
+.Post-header {
+  color: @muted-color;
+
+  .username {
+    font-weight: 650;
+    color: @heading-color;
+  }
+}
+
+.Post-body {
+  line-height: 1.65;
+
+  // Uploaded images sit inside the card's radius rather than overflowing it.
+  img {
+    border-radius: @bp-radius-sm;
+    max-width: 100%;
+    height: auto;
+  }
+
+  blockquote,
+  .UncitedQuote {
+    border-left: 3px solid fade(@secondary-color, 45%);
+    border-radius: 0 @bp-radius-sm @bp-radius-sm 0;
+    background: @control-bg;
+  }
+
+  pre,
+  code {
+    border-radius: @bp-radius-sm;
+  }
+}
+
+.DiscussionHero {
+  background: transparent;
+  color: @text-color;
+
+  h2,
+  .DiscussionHero-title {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: @heading-color;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Buttons
+// -----------------------------------------------------------------------------
+// The primary button is the signature: a solid accent slab sitting on a darker
+// lip, which compresses when pressed. It is the only place the accent is used at
+// full strength, which is what makes it read as *the* action.
+
+.Button {
+  border-radius: @bp-radius-sm;
+  font-weight: 600;
+  transition: background @bp-ease, color @bp-ease, transform @bp-ease, box-shadow @bp-ease;
+}
+
+.Button--primary,
+.Button--primary:not(:disabled):not(.disabled) {
+  background: @primary-color;
+  color: @blueprint-on-primary;
+  box-shadow:
+    0 2px 0 @blueprint-primary-lip,
+    0 8px 20px -6px fade(@primary-color, 60%);
+
+  &:hover,
+  &:focus-visible {
+    background: lighten(@primary-color, 6%);
+    color: @blueprint-on-primary;
+    transform: translateY(-2px);
+    box-shadow:
+      0 4px 0 @blueprint-primary-lip,
+      0 14px 26px -8px fade(@primary-color, 65%);
+  }
+
+  &:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 0 @blueprint-primary-lip;
+  }
+
+  &:disabled,
+  &.disabled {
+    box-shadow: none;
+    transform: none;
+  }
+}
+
+// Secondary buttons stay neutral so they never compete with the primary.
+.Button:not(.Button--primary):not(.Button--link) {
+  background: @control-bg;
+  color: @control-color;
+
+  &:hover {
+    background: darken(@control-bg, 3%);
+  }
+}
+
+.Button--link {
+  color: @link-color;
+}
+
+// -----------------------------------------------------------------------------
+// Tags, badges and pills
+// -----------------------------------------------------------------------------
+// Outline chips, matching the topic row on the marketing site. Tag colours are
+// per-tag data set in the admin panel, so this styles the shape and leaves the
+// colour to whatever the forum has configured.
+
+.TagLabel {
+  border-radius: 999px;
+}
+
+.TagsLabel .TagLabel.colored {
+  border-radius: 999px;
+}
+
+.IndexPage-toolbar {
+  .Button {
+    border-radius: 999px;
+  }
+}
+
+.Badge {
+  box-shadow: none;
+  border: 1px solid @blueprint-line;
+}
+
+// -----------------------------------------------------------------------------
+// Side navigation
+// -----------------------------------------------------------------------------
+
+.SideNav {
+  .Dropdown-toggle,
+  .ButtonGroup > .Button {
+    border-radius: 999px;
+  }
+
+  li > a,
+  .Button--link {
+    border-radius: 999px;
+    transition: background @bp-ease, color @bp-ease;
+
+    &:hover {
+      background: @control-bg;
+    }
+  }
+
+  .active > a,
+  .active .Button--link {
+    background: fade(@secondary-color, 12%);
+    color: @secondary-color;
+    font-weight: 600;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Forms, cards, overlays
+// -----------------------------------------------------------------------------
+
+.FormControl,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  border-radius: @bp-radius-sm;
+  border: 1px solid @blueprint-line;
+  background: @blueprint-card;
+  transition: border-color @bp-ease, box-shadow @bp-ease;
+
+  &:focus {
+    border-color: fade(@secondary-color, 60%);
+    box-shadow: 0 0 0 3px fade(@secondary-color, 14%);
+  }
+}
+
+.Dropdown-menu,
+.Modal-content,
+.UserCard,
+.Composer {
+  border-radius: @bp-radius;
+  border: 1px solid @blueprint-line;
+  box-shadow: @bp-shadow;
+}
+
+.Composer {
+  border-bottom: 0;
+  border-radius: @bp-radius @bp-radius 0 0;
+}
+
+.Alert {
+  border-radius: @bp-radius-sm;
+}
+
+// Pagination supplied by gradba/flarum-pagination — keep its pills consistent.
+.GradbaPostPaginator .Button,
+.Pagination .Button {
+  border-radius: 999px;
+}

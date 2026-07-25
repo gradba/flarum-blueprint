@@ -1,0 +1,200 @@
+// =============================================================================
+// Blueprint — a copy of Flarum 1.8.10's less/common/variables.less
+// =============================================================================
+//
+// Substituted for core's file by Extend\Theme->overrideFileSource() in extend.php,
+// because `@body-bg` and friends are assigned inside the `.define-colors()` mixin
+// and cannot be changed by appending LESS afterwards.
+//
+// KEEP THIS IN SYNC. On a Flarum upgrade, diff it against
+// `vendor/flarum/core/less/common/variables.less` and re-apply the changes below.
+// Every deviation from core is marked `// BLUEPRINT:` so the diff is greppable.
+//
+// The `@config-*` and `@blueprint-*` variables are declared by Flarum AFTER this
+// file (from the settings table), so the admin panel still overrides everything
+// here. The values below are only defaults for when a setting is unset.
+// -----------------------------------------------------------------------------
+
+// ---------------------------------
+// CONFIG
+
+@config-primary-color:             #FBB03B;   // BLUEPRINT: amber — the one accent
+@config-secondary-color:           #3A5952;   // BLUEPRINT: deep green — hue source for controls
+@config-dark-mode:                 false;
+// BLUEPRINT: a coloured header would put a second full-bleed accent on every page
+// and swamp the primary button, which is meant to be the focal point. The header
+// sits on the page background with a hairline rule instead.
+@config-colored-header:            false;
+
+// BLUEPRINT: additions, all settings-driven (see extend.php).
+@blueprint-body-bg:                #fbfaf8;   // warm off-white, not pure white
+@blueprint-grid-size:              56px;      // blueprint grid pitch
+@blueprint-show-grid:              true;
+@blueprint-ink:                    #23262a;   // text
+@blueprint-muted:                  #5c636b;   // secondary text
+@blueprint-card:                   #ffffff;   // raised surfaces
+@blueprint-line:                   rgba(35, 38, 42, 0.10);  // borders, dividers, grid
+@blueprint-on-primary:             #1d1a12;   // warm near-black for text on amber
+// The lip under the primary button. Derived rather than hard-coded so it tracks a
+// recoloured primary — and this particular derivation is not arbitrary: applied to
+// #FBB03B it reproduces #E09A2E exactly, the dark amber the brand already uses.
+@blueprint-primary-lip:            darken(desaturate(@config-primary-color, 22%), 8%);
+
+// ---------------------------------
+// COLORS
+
+@primary-hue:                      hue(@primary-color);
+@primary-sat:                      saturation(@primary-color);
+
+@secondary-hue:                    hue(@secondary-color);
+@secondary-sat:                    saturation(@secondary-color);
+
+@body-bg-light:                    @blueprint-body-bg;   // BLUEPRINT
+@body-bg-dark:                     hsl(@secondary-hue, min(20%, @secondary-sat), 10%);
+
+// Derive the primary/secondary colors from the config variables. In dark mode,
+// we make the user-set colors a bit darker, otherwise they will stand out too
+// much.
+.define-colors(@config-dark-mode);
+.define-colors(false) {
+  @primary-color:                  @config-primary-color;
+  @secondary-color:                @config-secondary-color;
+
+  @body-bg:                        @body-bg-light;
+  @text-color:                     @blueprint-ink;          // BLUEPRINT
+  // BLUEPRINT: links take the green accent, not the amber. Amber is reserved for
+  // primary actions — a page of amber links would spend the accent on navigation.
+  @link-color:                     @config-secondary-color;
+  @heading-color:                  @text-color;
+  @muted-color:                    @blueprint-muted;        // BLUEPRINT
+  @muted-more-color:               #aaa;
+  @shadow-color:                   rgba(0, 0, 0, 0.14);     // BLUEPRINT: soft, not 0.35
+
+  @control-bg:                     hsl(@secondary-hue, min(50%, @secondary-sat), 95%);  // BLUEPRINT: lighter
+  @control-color:                  @muted-color;
+  @control-danger-bg:              #fdd;
+  @control-danger-color:           #d66;
+
+  @overlay-bg:                     fade(@secondary-color, 90%);
+
+  @code-bg:                        darken(@body-bg, 3%);
+  @code-color:                     lighten(@text-color, 30%);
+}
+.define-colors(true) {
+  @primary-color:                  @config-primary-color;
+  @secondary-color:                @config-secondary-color;
+
+  @body-bg:                        @body-bg-dark;
+  @text-color:                     #ddd;
+  @link-color:                     saturate(@primary-color, 10%);
+  @heading-color:                  @text-color;
+  @muted-color:                    hsl(@secondary-hue, min(15%, @secondary-sat), 50%);
+  @muted-more-color:               hsl(@secondary-hue, min(10%, @secondary-sat), 40%);
+  @shadow-color:                   rgba(0, 0, 0, 0.5);
+
+  @control-bg:                     hsl(@secondary-hue, min(20%, @secondary-sat), 13%);
+  @control-color:                  @muted-color;
+  @control-danger-bg:              #411;
+  @control-danger-color:           #a88;
+
+  @overlay-bg:                     fade(darken(@body-bg, 5%), 90%);
+
+  @code-bg:                        darken(@body-bg, 3%);
+  @code-color:                     #fff;
+}
+
+// Beyond dark or light mode, we need stable colors depending on the luminosity
+// of the parents element's background. This allow not to change the color
+// variable depending on the dark/light mode to get the same final color, and
+// thus to simplify the logic.
+@text-on-dark:                     @body-bg-light;
+@text-on-light:                    @body-bg-dark;
+
+@hero-bg:                          @control-bg;
+@hero-color:                       @control-color;
+@hero-muted-color:                 @control-color;
+
+@error-color:                      #d83e3e;
+
+@alert-bg:                         #fff2ae;
+@alert-color:                      #ad6c00;
+
+@alert-error-bg:                   @error-color;
+@alert-error-color:                #fff;
+
+@alert-success-bg:                 #B4F1AF;
+@alert-success-color:              #33722D;
+
+@validation-error-color:           @error-color;
+
+.define-header(@config-colored-header);
+.define-header(false) {
+  @header-bg:                      @body-bg;
+  // BLUEPRINT: core tints the whole header with the primary colour here, which puts
+  // the accent on "Log In", "Sign Up", the search placeholder and every header
+  // control — so the one thing on the page that should own it, the primary button,
+  // no longer stands out. Header text is ordinary text.
+  @header-color:                   @heading-color;
+  @header-control-bg:              @control-bg;
+  @header-control-color:           @muted-color;
+}
+.define-header(true) {
+  @header-bg:                      @primary-color;
+  @header-color:                   @body-bg;
+  @header-control-bg:              mix(#000, @header-bg, 10%);
+  @header-control-color:           mix(@body-bg, @header-bg, 60%);
+}
+
+// ---------------------------------
+// LAYOUT
+
+@drawer-width:                     270px;
+@pane-width:                       400px;
+@header-height:                    60px;   // BLUEPRINT: was 52px — room for the logo mark
+@header-height-phone:              52px;   // BLUEPRINT: was 46px
+
+@border-radius:                    12px;   // BLUEPRINT: was 4px
+
+@zindex-header:                    1000;
+@zindex-pane:                      1010;
+@zindex-composer:                  1020;
+@zindex-dropdown:                  1030;
+@zindex-modal-background:          1040;
+@zindex-modal:                     1050;
+@zindex-alerts:                    1060;
+@zindex-tooltip:                   1070;
+
+@expand-side-nav:                  @tablet-up;
+
+// ---------------------------------
+// BREAKPOINTS
+
+// We use `-0.02` here to fix an odd rendering glitch with specific operating system UI scaling, and combined
+// with specific viewport sizes. This can result in the browser actually being 'between' media queries, which
+// breaks our UI. See: https://github.com/flarum/core/issues/2915
+
+@screen-phone-max:                 (@screen-tablet - 0.02);
+
+@screen-tablet:                    768px;
+@screen-tablet-max:                (@screen-desktop - 0.02);
+
+@screen-desktop:                   992px;
+@screen-desktop-max:               (@screen-desktop-hd - 0.02);
+
+@screen-desktop-hd:                1100px;
+
+@phone:                            ~"(max-width: @{screen-phone-max})";
+@tablet:                           ~"(min-width: @{screen-tablet}) and (max-width: @{screen-tablet-max})";
+@desktop:                          ~"(min-width: @{screen-desktop}) and (max-width: @{screen-desktop-max})";
+@desktop-hd:                       ~"(min-width: @{screen-desktop-hd})";
+
+@tablet-up:                        ~"(min-width: @{screen-tablet})";
+@desktop-up:                       ~"(min-width: @{screen-desktop})";
+
+// ---------------------------------
+// COMPONENTS
+
+@tooltip-bg:                       rgba(0, 0, 0, 0.9);
+@tooltip-color:                    #fff;
+
+@online-user-circle-color:         #7FBA00;

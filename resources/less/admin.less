@@ -1,0 +1,29 @@
+// Blueprint — admin styles.
+//
+// The admin panel deliberately keeps Flarum's stock look: it is a tool, not a
+// storefront, and re-skinning it makes upgrades harder for no benefit. Only the
+// theme's own settings pane is touched, so the colour swatches read clearly.
+
+.BlueprintSettings-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.BlueprintSettings-swatch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted-color);
+
+  &::before {
+    content: "";
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 1px solid var(--control-bg);
+    background: currentColor;
+  }
+}
