@@ -27,7 +27,11 @@
 @config-colored-header:            false;
 
 // BLUEPRINT: additions, all settings-driven (see extend.php).
-@blueprint-body-bg:                #fbfaf8;   // warm off-white, not pure white
+// Warm off-white. Deliberately a full step darker than the marketing site's #fbfaf8:
+// that value sits 1.04:1 against a white card, which is invisible, and a forum stacks
+// dozens of cards where the landing page has one. This is 1.18:1 — the cards read as
+// floating without the page turning beige.
+@blueprint-body-bg:                #f2ebe2;
 @blueprint-grid-size:              56px;      // blueprint grid pitch
 @blueprint-show-grid:              true;
 @blueprint-ink:                    #23262a;   // text

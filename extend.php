@@ -60,7 +60,7 @@ return [
         })
         ->default('gradba-blueprint.primaryColor', '#FBB03B')
         ->default('gradba-blueprint.accentColor', '#3A5952')
-        ->default('gradba-blueprint.bodyBg', '#fbfaf8')
+        ->default('gradba-blueprint.bodyBg', '#f2ebe2')
         ->default('gradba-blueprint.gridSize', 56)
         ->default('gradba-blueprint.showGrid', true),
 ];
