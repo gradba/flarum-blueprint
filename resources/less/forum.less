@@ -133,7 +133,9 @@ a {
   margin-top: 0;
 
   .container {
-    max-width: 1100px;
+    // Follows the content width rather than hard-coding it, so the hero card stays
+    // flush with the discussion list when @screen-desktop-hd changes.
+    max-width: @screen-desktop-hd;
     margin: 24px auto 0;
     padding: 36px 32px 32px;
     background: @blueprint-card;

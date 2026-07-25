@@ -185,7 +185,11 @@
 @screen-desktop:                   992px;
 @screen-desktop-max:               (@screen-desktop-hd - 0.02);
 
-@screen-desktop-hd:                1100px;
+// BLUEPRINT: was 1100px. Flarum ties `.container`'s width to this breakpoint, so it is
+// the single knob for content width. 1100 is tight on the index, where a 190px side
+// nav plus its gutter leaves the discussion list only ~830px; at 1200 it gets ~930px
+// and lines up with the reading width of a discussion.
+@screen-desktop-hd:                1200px;
 
 @phone:                            ~"(max-width: @{screen-phone-max})";
 @tablet:                           ~"(min-width: @{screen-tablet}) and (max-width: @{screen-tablet-max})";
