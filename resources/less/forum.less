@@ -367,6 +367,69 @@ a {
   }
 }
 
+// "Write a Reply…" — core leaves this transparent with a dashed border that is itself
+// transparent until hover, so on this theme's background it reads as loose text with a
+// stray avatar rather than something you can click. It is the primary call to action on
+// the page after "reply", so it gets a real surface: the same card as a post, but
+// visibly an input rather than content.
+.ReplyPlaceholder {
+  background: @blueprint-card;
+  border: 1px solid @blueprint-line;
+  border-radius: @bp-radius;
+  box-shadow: @bp-shadow-sm;
+  color: @muted-color;
+  // Core's 50px is tuned for a borderless placeholder; a card needs less air to read
+  // as the end of the stream.
+  margin-top: 24px;
+  // Core widens it by 20px a side to sit under the post padding. With a border that
+  // just makes it wider than the posts above it.
+  width: 100%;
+  transition: border-color @bp-ease, box-shadow @bp-ease;
+}
+
+@media @tablet-up {
+  .ReplyPlaceholder {
+    // Core sets this transparent and only reveals it on hover.
+    border-color: @blueprint-line;
+
+    .Post-header {
+      padding-bottom: 18px;
+    }
+
+    &:hover {
+      border-color: fade(@secondary-color, 45%);
+      box-shadow: @bp-shadow;
+    }
+  }
+}
+
+// The reply placeholder is shown to guests too, and core's `avatar(null)` returns an
+// empty `<span class="Avatar">` — no image, no initial — so a signed-out visitor gets a
+// blank disc with no meaning. `:empty` identifies exactly that case (a real avatar is an
+// `<img>`, and a user without one still has their initial as a text node). Give it a
+// neutral silhouette instead.
+// Drawn as an inline SVG used as a MASK, not a Font Awesome pseudo-element. A glyph
+// would mean `content: "\f007"` plus `font-family: "Font Awesome 5 Free"` — and that
+// family name changes in Font Awesome 6, so it would silently render a blank box on a
+// Flarum install shipping a different version. A mask has no font dependency at all,
+// and taking the colour from `background-color` keeps it themeable rather than baking
+// a hex into the data URI.
+@blueprint-user-icon: ~"url('data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2024%2024%27%3E%3Ccircle%20cx=%2712%27%20cy=%278.2%27%20r=%273.9%27/%3E%3Cpath%20d=%27M12%2013.6c-4.3%200-7.4%202.6-7.4%206.4%200%20.3.2.5.5.5h13.8c.3%200%20.5-.2.5-.5%200-3.8-3.1-6.4-7.4-6.4z%27/%3E%3C/svg%3E')";
+
+.ReplyPlaceholder span.Avatar:empty {
+  background-color: @control-bg;
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: @muted-more-color;
+    -webkit-mask: @blueprint-user-icon no-repeat center / 58% 58%;
+    mask: @blueprint-user-icon no-repeat center / 58% 58%;
+  }
+}
+
 .DiscussionHero {
   background: transparent;
   color: @text-color;
