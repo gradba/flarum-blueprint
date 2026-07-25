@@ -198,12 +198,61 @@ a {
   }
 }
 
-// Desktop only. On phone, core pulls the avatar (margin-left: -45px) and the reply
-// count (margin-right: -35px) back into gutters that this element's own padding
-// creates — so replacing that padding at every width drags both outside the card.
+// Core builds this row out of gutters, not a grid: `.DiscussionListItem-content` gets
+// a big left/right padding, and the avatar (margin-left: -52px) and the reply count
+// (float: right) are pulled back into it. Replacing that padding throws both outside
+// the card, which is what clipped the avatars and count chips. So the card's inset
+// goes on the ITEM, and the content keeps core's horizontal padding untouched.
 @media @tablet-up {
+  .DiscussionListItem {
+    // Core bleeds the row 15px past the container on each side so its hover band can
+    // run full-width. A card should align to the container instead.
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 18px;
+    padding-right: 18px;
+
+    // ...and the hover is a lift, set above — not core's background wash.
+    &:hover {
+      background: @blueprint-card;
+    }
+  }
+
   .DiscussionListItem-content {
-    padding: 16px 18px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  // Core adds 12px of its own vertical padding on top of the content padding above,
+  // leaving ~52px of padding around ~39px of text. Tighten it so a list of short
+  // titles does not read as mostly whitespace.
+  .DiscussionListItem-main {
+    padding: 6px 0;
+  }
+
+  // Controls (the ⋯ menu) sit absolutely against the item edge; nudge them inside
+  // the card's new padding so they do not touch the rounded corner.
+  .DiscussionListItem-controls {
+    right: 10px;
+    top: 10px;
+  }
+
+  // flarum-tags parks the tag group absolutely in the top-right, caps it at 150px and
+  // fades the overflow out with a mask, expanding on hover. That budget is fine for
+  // short Latin tags and much too tight for a Cyrillic parent/child pair like
+  // "Инфраструктура · Патишта", which gets cut mid-word on nearly every row. Widen the
+  // resting width and move the fade with it; the hover expansion is upstream's.
+  .IndexPage,
+  .UserPage {
+    .DiscussionListItem-info > .item-tags {
+      max-width: 230px;
+      -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 214px, rgba(0, 0, 0, 0) 230px);
+      mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 214px, rgba(0, 0, 0, 0) 230px);
+    }
+
+    .DiscussionListItem-title {
+      margin-right: 240px;
+    }
   }
 }
 
@@ -258,12 +307,17 @@ a {
   margin-bottom: 10px;
 }
 
+// Vertical padding only. Core reserves an 85px avatar column inside `.Post`'s LEFT
+// padding (`padding-left: 20px + 85px`) and absolutely positions `.PostUser-avatar` at
+// `left: -85px` into it — so setting a horizontal padding here throws the avatar
+// outside the card. Same trap as the discussion list; leave core's gutters alone.
 .CommentPost {
   background: @blueprint-card;
   border: 1px solid @blueprint-line;
   border-radius: @bp-radius;
   box-shadow: @bp-shadow-sm;
-  padding: 18px 20px;
+  padding-top: 18px;
+  padding-bottom: 18px;
 }
 
 .Post-header {
@@ -307,6 +361,38 @@ a {
     font-weight: 700;
     letter-spacing: -0.02em;
     color: @heading-color;
+  }
+}
+
+// flarum-tags styles hero labels on the assumption that the hero is a filled colour
+// band: it makes them transparent and hands coloured tags `--tag-color: var(--tag-bg)`
+// against `--body-bg`. This theme's hero is not filled, so an UNcoloured tag — which
+// every child tag here is — ends up near-white on cream and effectively disappears.
+// Give them the same outline-chip treatment used everywhere else, and let coloured
+// tags keep their own colour as the text.
+.DiscussionHero .TagsLabel .TagLabel {
+  --tag-color: @blueprint-muted;
+  // Flarum adds a `.text-contrast--light` helper that sets `color` on the label for a
+  // filled hero, which the ICON inherits — leaving it near-white on the chip while the
+  // text span (which carries its own colour) still reads. Point both at --tag-color.
+  color: var(--tag-color) !important;
+  background-color: @blueprint-card;
+  border: 1px solid @blueprint-line;
+  border-radius: 999px !important;
+  padding: 3px 11px;
+  font-size: 13px;
+  margin-right: 6px;
+
+  &.colored,
+  &--colored {
+    // The tag's own colour as ink on a white chip. Readable at any tag colour, unlike
+    // white-on-tag-colour, which fails for pale tags.
+    --tag-color: var(--tag-bg);
+    background-color: @blueprint-card;
+  }
+
+  .TagLabel-text {
+    color: var(--tag-color) !important;
   }
 }
 
@@ -378,6 +464,69 @@ a {
   border-radius: 999px;
 }
 
+// The tag tiles are one flush slab of saturated colour with hard corners — the only
+// thing on the site that is not a card on the grid. Break them into separate tiles so
+// they read as the same family as everything else. The colours stay as configured;
+// only the geometry changes.
+.TagTiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  overflow: visible;
+
+  > li {
+    height: auto;
+    min-height: 190px;
+    float: none !important;
+    width: auto !important;
+    border-radius: @bp-radius !important;
+    overflow: hidden;
+    box-shadow: @bp-shadow-sm;
+    transition: transform @bp-ease, box-shadow @bp-ease;
+    display: flex;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: @bp-shadow;
+    }
+  }
+
+  // Upstream fixes the tile at 200px and absolutely positions the body (`top: 0;
+  // bottom: 42px; overflow: auto`) above a pinned last-post row — so a tag with many
+  // children silently scrolls its own list inside the tile and looks truncated.
+  // Put both back in flow and let the tile grow; the grid stretches the row to match.
+  .TagTile {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    position: relative;
+  }
+
+  .TagTile-info {
+    position: static;
+    overflow: visible;
+    flex: 1 1 auto;
+    bottom: auto;
+  }
+
+  .TagTile-lastPostedDiscussion {
+    position: static;
+    height: auto;
+    margin-top: auto;
+    padding: 10px 0;
+  }
+
+  @media @tablet {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media @phone {
+    grid-template-columns: 1fr;
+    margin: 0;
+    gap: 10px;
+  }
+}
+
 .TagsLabel .TagLabel.colored {
   border-radius: 999px;
 }
@@ -396,6 +545,22 @@ a {
 // -----------------------------------------------------------------------------
 // Side navigation
 // -----------------------------------------------------------------------------
+// Everything else on the page is a card on the grid; left plain, the nav reads as
+// loose text floating next to them. It becomes a card too — but a quieter one, with
+// no shadow, so it sits behind the content rather than competing with it.
+
+// Scoped to `.sideNavContainer`, which is what actually makes this a vertical column.
+// The Tags page reuses the same `.IndexPage-nav.sideNav` markup inside a plain
+// `.container`, where the button group lays out horizontally and spills straight out
+// of a 190px card.
+@media @tablet-up {
+  .sideNavContainer > .IndexPage-nav > ul {
+    background: @blueprint-card;
+    border: 1px solid @blueprint-line;
+    border-radius: @bp-radius;
+    padding: 8px;
+  }
+}
 
 .SideNav {
   .Dropdown-toggle,
@@ -405,7 +570,8 @@ a {
 
   li > a,
   .Button--link {
-    border-radius: 999px;
+    border-radius: 8px;
+    padding: 7px 10px;
     transition: background @bp-ease, color @bp-ease;
 
     &:hover {
@@ -413,12 +579,60 @@ a {
     }
   }
 
+  // "You are here" gets a filled chip plus a left bar. The bar is what makes the
+  // state legible at a glance in a list where several items share a colour.
   .active > a,
-  .active .Button--link {
-    background: fade(@secondary-color, 12%);
+  .active > .Button--link {
+    position: relative;
+    background: fade(@secondary-color, 10%);
     color: @secondary-color;
     font-weight: 600;
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 6px;
+      bottom: 6px;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: @secondary-color;
+    }
   }
+}
+
+// Child tags are rendered as a nested list with nothing but indentation to signal
+// the relationship. A hairline rail makes the hierarchy visible, the way a file tree
+// does, and stops the children reading as more top-level items.
+.TagsPage-nav .TagLinkButton,
+.IndexPage-nav .item-tag ~ .item-tag,
+.sideNav .Dropdown-menu li > a {
+  border-radius: 8px;
+}
+
+.IndexPage-nav ul ul,
+.sideNav ul ul {
+  margin: 2px 0 6px;
+  padding-left: 10px;
+  border-left: 1px solid @blueprint-line;
+
+  > li > a {
+    font-size: 13px;
+    color: @muted-color;
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+}
+
+// Tag colours are per-tag data the forum owns, so they are left alone — but at full
+// strength on a small glyph they read as noise across a list. Sizing them down and
+// aligning the column makes the nav scan as one object.
+.IndexPage-nav .TagIcon,
+.sideNav .TagIcon {
+  font-size: 13px;
+  width: 18px;
+  text-align: center;
+  vertical-align: -1px;
 }
 
 // -----------------------------------------------------------------------------
