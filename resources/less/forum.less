@@ -430,6 +430,66 @@ a {
   }
 }
 
+// -----------------------------------------------------------------------------
+// User page
+// -----------------------------------------------------------------------------
+// Core builds the profile header as a colour-filled banner: `.UserCard` takes the
+// user's own colour, `.darkenBackground` lays `var(--shadow-color)` over it, and
+// `.light-contents()` switches all the text to white to sit on top. On this theme the
+// card is white, so that combination produced a full-width grey band with an invisible
+// username on it.
+
+.UserCard {
+  // `.light-contents()` reads these custom properties before falling back to its
+  // white-on-dark defaults, so rebinding them here is enough — no specificity fight
+  // and no !important.
+  --light-content-color: @heading-color;
+  --light-content-control-color: @muted-color;
+  --light-content-control-bg: @control-bg;
+}
+
+// On the profile page the card is the inner `.container` (styled with the hero above),
+// and `.UserCard` is the full-bleed banner wrapper — so giving IT a surface just trades
+// core's grey band for a white one.
+.UserPage-header .UserCard,
+.Hero .UserCard {
+  background: transparent;
+}
+
+// The hover popover is genuinely a floating card, so it keeps a real surface.
+.UserCard--popover {
+  background: @blueprint-card;
+  border: 1px solid @blueprint-line;
+  box-shadow: @bp-shadow;
+}
+
+// The darkening overlay only makes sense over a coloured banner.
+.UserPage-header .darkenBackground,
+.UserCard .darkenBackground {
+  background: transparent;
+}
+
+.UserCard-identity {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.UserCard-badges,
+.UserCard-lastSeen {
+  color: @muted-color;
+}
+
+// The profile nav is the same kind of object as the index side nav, so it gets the
+// same surface rather than sitting as loose text beside a card.
+@media @tablet-up {
+  .UserPage-nav > ul {
+    background: @blueprint-card;
+    border: 1px solid @blueprint-line;
+    border-radius: @bp-radius;
+    padding: 8px;
+  }
+}
+
 .DiscussionHero {
   background: transparent;
   color: @text-color;
