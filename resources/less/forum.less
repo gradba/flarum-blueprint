@@ -178,26 +178,39 @@ a {
 // -----------------------------------------------------------------------------
 // Discussion list
 // -----------------------------------------------------------------------------
-// Each row is a card. The hover state is a lift, not a colour wash, so the accent
-// stays reserved for things you can actually press.
+// One panel, not a stack of separate cards. Eight cards means eight borders, eight
+// shadows and a gap between every row for the grid to show through — a lot of visual
+// noise for what is really one list. A single surface with hairline dividers reads
+// far calmer, and lets the grid frame the content instead of interrupting it.
 
-.DiscussionListItem {
+.DiscussionList-discussions {
   background: @blueprint-card;
   border: 1px solid @blueprint-line;
   border-radius: @bp-radius;
-  margin-bottom: 10px;
-  box-shadow: @bp-shadow-sm;
-  transition: transform @bp-ease, box-shadow @bp-ease, border-color @bp-ease;
+  box-shadow: @bp-shadow;
+  // Keeps the first and last rows' hover tint inside the rounded corners.
+  overflow: hidden;
+}
 
+.DiscussionListItem {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  margin-bottom: 0;
+  box-shadow: none;
+  transition: background @bp-ease;
+
+  // A tint rather than a lift: a row cannot rise out of a surface it is part of.
   &:hover {
-    transform: translateY(-1px);
-    border-color: fade(@secondary-color, 35%);
-    box-shadow: @bp-shadow;
+    background: mix(@body-bg, @blueprint-card, 55%);
   }
+}
 
-  &:last-child {
-    border-bottom: 1px solid @blueprint-line;
-  }
+// Divider between rows only — never above the first or below the last, which the
+// panel's own border already handles.
+.DiscussionList-discussions > li + li .DiscussionListItem,
+.DiscussionListItem + .DiscussionListItem {
+  border-top: 1px solid @blueprint-line;
 }
 
 // Core builds this row out of gutters, not a grid: `.DiscussionListItem-content` gets
@@ -603,38 +616,53 @@ a {
   }
 }
 
-// Child tags are rendered as a nested list with nothing but indentation to signal
-// the relationship. A hairline rail makes the hierarchy visible, the way a file tree
-// does, and stops the children reading as more top-level items.
-.TagsPage-nav .TagLinkButton,
-.IndexPage-nav .item-tag ~ .item-tag,
-.sideNav .Dropdown-menu li > a {
-  border-radius: 8px;
-}
+// 190px is tight for Cyrillic tag names — "Градска инфраструктура" and "Хотели и
+// одморалишта" both ellipsise. Widen the column and take the extra room out of the
+// 50px gutter rather than the content.
+@media @desktop-up {
+  .sideNav {
+    margin-right: 36px;
 
-.IndexPage-nav ul ul,
-.sideNav ul ul {
-  margin: 2px 0 6px;
-  padding-left: 10px;
-  border-left: 1px solid @blueprint-line;
-
-  > li > a {
-    font-size: 13px;
-    color: @muted-color;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    &,
+    > ul {
+      width: 240px;
+    }
   }
 }
 
-// Tag colours are per-tag data the forum owns, so they are left alone — but at full
-// strength on a small glyph they read as noise across a list. Sizing them down and
-// aligning the column makes the nav scan as one object.
-.IndexPage-nav .TagIcon,
-.sideNav .TagIcon {
+// Child tags are NOT a nested <ul> — flarum-tags renders them as flat `li.item-tagN`
+// siblings, marked with `.TagLinkButton.child` and indented by margin. So a nested-list
+// rail is not possible; the hierarchy has to come from the row itself.
+.TagLinkButton.child {
+  margin-left: 18px;
   font-size: 13px;
+  color: @muted-color;
+}
+
+// flarum-tags hides `.TagIcon` on child rows outright, which leaves sub-items with no
+// marker at all and no visual anchor down the column. Bring it back as a small dot in
+// the tag's own colour.
+//
+// This only affects tags with NO admin-set icon: flarum-tags renders `<i class="fas
+// fa-…">` when an icon is configured and an empty `<span class="TagIcon">` when it is
+// not, so styling the span gives "bullet unless the admin chose an icon" for free.
+.TagLinkButton.child .TagIcon {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  min-width: 5px;
+  border-radius: 50%;
+  margin: 0 9px 0 5px;
+  vertical-align: 2px;
+  background: var(--color, @muted-more-color);
+  opacity: 0.8;
+}
+
+// Real icons stay the size of the parent rows' so the column still aligns.
+.sideNav .TagLinkButton > .icon:not(.TagIcon) {
   width: 18px;
   text-align: center;
-  vertical-align: -1px;
+  font-size: 13px;
 }
 
 // -----------------------------------------------------------------------------
